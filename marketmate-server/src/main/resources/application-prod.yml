@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    com.marketmate: INFO
+    org.springframework: WARN
+    org.springframework.security: INFO
+    org.hibernate: WARN
+
+app:
+  cookie:
+    secure: true

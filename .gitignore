@@ -1,0 +1,27 @@
+# --- 共通 ---
+.env
+.env.*            # Nuxtの環境ファイル類
+.DS_Store
+Thumbs.db
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# --- frontend (marketmate) ---
+marketmate/node_modules/
+marketmate/.nuxt/
+marketmate/.output/
+marketmate/.cache/
+marketmate/dist/
+marketmate/.vercel/
+marketmate/.firebase/
+marketmate/.local/
+
+# --- backend (marketmate-server: Gradle/Java) ---
+marketmate-server/.gradle/
+marketmate-server/build/
+marketmate-server/out/
+marketmate-server/logs/
+
+# --- Docker ---
+**/tmp/

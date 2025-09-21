@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: marketmate-server
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/marketmate
+    username: marketmate
+    password: marketmate
+
+  # ★ Flyway: マイグレーション設定
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+    clean-disabled: true        # 誤って flyway clean されないよう保護
+
+  # ★ JPA: DDLはFlywayに任せる
+  jpa:
+    hibernate:
+      ddl-auto: none            # update/create を禁止
+    properties:
+      hibernate.jdbc.time_zone: Asia/Tokyo  # 省略可（時刻のズレ対策）
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: true
+
+  profiles:
+    default: dev
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+  tomcat:
+    accesslog:
+      enabled: true
+      directory: logs
+      prefix: access
+      rotate: true
+      pattern: '%h %l %u %t "%r" %s %b "%{X-Request-Id}i"'
+
+logging:
+  level:
+    root: INFO
+    com.marketmate: INFO
+    org.springframework: WARN
+    org.springframework.security: INFO
+    org.hibernate: WARN
+
+marketmate:
+  jwt:
+    secret: ${JWT_SECRET:dev-very-secret-key-change-me} # 32文字以上推奨
+    expires-minutes: 60                      # アクセストークン有効期限(分)
+    cookie-name: "MM_AT"                     # 配布するCookie名
+app:
+  cors:
+    # デフォルトをローカルにしておく（本番は環境変数で上書き）
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
