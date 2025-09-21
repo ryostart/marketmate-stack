@@ -39,20 +39,35 @@ Nuxt 3（TypeScript）＋ Spring Boot の **モノレポ**。
 
 ## 画面イメージ
 
-- 検索  
-  ![検索](docs/images/supermarket-search.png)
+- 検索
 
-- 詳細＋レビュー  
-  ![検索](docs/images/supermarket-detail.png)
+<table border="1" cellspacing="0" cellpadding="0"><tr><td>
+  <img src="docs/images/supermarket-search.png" alt="検索" width="980">
+</td></tr></table>
 
-- お気に入り 
-  ![検索](docs/images/favorites.png)  
+- 詳細＋レビュー
 
-- 買い物メモ作成  
-  ![買い物メモ作成](docs/images/memo-create.png)
+<table border="1" cellspacing="0" cellpadding="0"><tr><td>
+  <img src="docs/images/supermarket-detail.png" alt="詳細＋レビュー" width="980">
+</td></tr></table>
 
-- メモ履歴  
-  ![メモ履歴](docs/images/memos.png)
+- お気に入り
+
+<table border="1" cellspacing="0" cellpadding="0"><tr><td>
+  <img src="docs/images/favorites.png" alt="お気に入り" width="980">
+</td></tr></table>
+
+- 買い物メモ作成
+
+<table border="1" cellspacing="0" cellpadding="0"><tr><td>
+  <img src="docs/images/memo-create.png" alt="買い物メモ作成" width="980">
+</td></tr></table>
+
+- メモ履歴
+
+<table border="1" cellspacing="0" cellpadding="0"><tr><td>
+  <img src="docs/images/memos.png" alt="メモ履歴" width="980">
+</td></tr></table>
 
 ---
 
