@@ -8,7 +8,7 @@ Nuxt 3（TypeScript）＋ Spring Boot の **モノレポ**。
 ---
 
 ## 主な機能
-- **スーパー検索**（Google Places API）＋ **Google マップ表示**
+- **スーパー検索**：（Google Places API）＋ **Google マップ表示**
 - **詳細パネル**：営業中ステータス・営業時間・地図・レビュー一覧
 - **お気に入り**：★トグルで登録/解除
 - **レビュー**：5 段階評価＋コメント、**詳細画面から投稿**
@@ -111,34 +111,26 @@ aws lightsail push-container-image \
 
 ### 3) コンソールでデプロイ
 
-1. Lightsail コンソール → **コンテナサービス** → `marketmate-web`（または `marketmate-api`）を開く
-2. **デプロイ**（「新しいデプロイを作成」）をクリック
-3. **コンテナ**タブで設定
+1. Lightsail → コンテナサービス → `marketmate-web`（または `marketmate-api`）を開く  
+2. **デプロイ** → **コンテナ**タブを設定  
+   - コンテナ名: Web=`web` / API=`api`  
+   - イメージ: Web=`:web-<LABEL>` / API=`:api-<LABEL>`  
+   - 公開ポート: Web=3000(HTTP) / API=8080(HTTP)  
+   - 環境変数（例）  
+     - Web:  
+       - `NUXT_PUBLIC_API_BASE=https://<APIのURL>`  
+       - `NUXT_PUBLIC_GOOGLE_MAPS_API_KEY=<GoogleAPIKey>`  
+     - API:  
+       - `SPRING_PROFILES_ACTIVE=prod`  
+       - `SPRING_DATASOURCE_URL=jdbc:postgresql://<RDSエンドポイント>:5432/<DB名>`  
+       - `SPRING_DATASOURCE_USERNAME=<ユーザー名>`  
+       - `SPRING_DATASOURCE_PASSWORD=<パスワード>`  
+       - `JWT_SECRET=<任意の長い秘密鍵>`
+3. **公開エンドポイント**タブ  
+   - Web: `web:3000` / Health Check=`/`  
+   - API: `api:8080` / Health Check=`/`（Actuator使用時は `/actuator/health`）
+4. **保存してデプロイ** → ステータスが *Healthy* になったら完了  
+   - 表示された **公開URL** をフロントの `NUXT_PUBLIC_API_BASE` に反映（https 推奨）
 
-   * **コンテナ名**: Web→`web` / API→`api`
-   * **イメージ**: `:web-<LABEL>` または `:api-<LABEL>` を選択
-   * **ポート公開**: Web = **3000/TCP (HTTP)**、API = **8080/TCP (HTTP)**
-   * **環境変数（例）**
-
-     * **Web**
-
-       * `NUXT_PUBLIC_API_BASE=https://<APIのURL>`
-       * `NUXT_PUBLIC_GOOGLE_MAPS_API_KEY=<GoogleAPIKey>`
-     * **API**
-
-       * `SPRING_PROFILES_ACTIVE=prod`
-       * `SPRING_DATASOURCE_URL=jdbc:postgresql://<RDSエンドポイント>:5432/<DB名>`
-       * `SPRING_DATASOURCE_USERNAME=<ユーザー名>`
-       * `SPRING_DATASOURCE_PASSWORD=<パスワード>`
-       * `JWT_SECRET=<任意の長い秘密鍵>`
-4. **公開エンドポイント**タブ
-
-   * **コンテナ名/ポート**: Web→`web:3000`、API→`api:8080`
-   * **ヘルスチェック**: Web→`/`、API→`/`（Actuator 使用時は `/actuator/health`）
-5. **スケール**: Web は `nano × 1`、API は `micro × 1`（用途に応じて調整）
-6. **保存してデプロイ** → ステータスが **Healthy** になれば公開完了
-7. 画面上部の **公開 URL** をフロントの `NUXT_PUBLIC_API_BASE` に反映（https 推奨）
-
-> **更新**: 新しい `<LABEL>` でプッシュ後、同じ手順でイメージだけ差し替えてデプロイ。
-> 
-> **ロールバック**: 過去の `<LABEL>` を選び直して再デプロイ。
+> 更新は「新しい `<LABEL>` をプッシュ → イメージを切替えてデプロイ」  
+> ロールバックは「過去の `<LABEL>` を選び直してデプロイ」
