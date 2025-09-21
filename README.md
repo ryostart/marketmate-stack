@@ -7,6 +7,16 @@ Nuxt 3（TypeScript）＋ Spring Boot の **モノレポ**。
 
 ---
 
+## 目次
+- [主な機能](#主な機能)
+- [技術スタック](#技術スタック)
+- [画面イメージ](#画面イメージ)
+- [ローカル実行](#ローカル実行)
+- [デプロイ](#デプロイ)
+- [ライセンス](#ライセンス)
+
+---  
+
 ## 主な機能
 - **スーパー検索**：（Google Places API）＋ **Google マップ表示**
 - **詳細パネル**：営業中ステータス・営業時間・地図・レビュー一覧
@@ -71,7 +81,21 @@ Nuxt 3（TypeScript）＋ Spring Boot の **モノレポ**。
 
 ---
 
-## デプロイ（AWS Lightsail：CLIでビルド/プッシュ → コンソールでデプロイ）
+## ローカル実行
+
+前提: Node.js 20+ / Java 21+ / Docker
+
+### A. Docker で一括起動
+```bash
+docker compose up --build
+# Web: http://localhost:3000
+# API: http://localhost:8080
+# DB : localhost:5432 (postgres)
+```
+
+---
+
+## デプロイ
 
 本番は **AWS Lightsail コンテナサービス**を利用しています。  
 サービス名: **marketmate-web**（Nuxt） / **marketmate-api**（Spring Boot）  
@@ -134,3 +158,8 @@ aws lightsail push-container-image \
 
 > 更新は「新しい `<LABEL>` をプッシュ → イメージを切替えてデプロイ」  
 > ロールバックは「過去の `<LABEL>` を選び直してデプロイ」
+
+---
+
+## ライセンス
+MIT © 2025 ryostart — 詳細は [LICENSE](./LICENSE) を参照
