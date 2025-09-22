@@ -1,55 +1,55 @@
-// eslint.config.js
+// marketmate/eslint.config.js
 import js from '@eslint/js'
 import * as tseslint from 'typescript-eslint'
 import vue from 'eslint-plugin-vue'
-import vueParser from 'vue-eslint-parser'
 import nuxt from 'eslint-plugin-nuxt'
-import eslintConfigPrettier from 'eslint-config-prettier'
+import vueParser from 'vue-eslint-parser'
+import prettier from 'eslint-config-prettier'
+import globals from 'globals'
 
 export default [
-  // 0) 無視パターン（ビルド物など）
-  {
-    ignores: ['.nuxt/**', '.output/**', 'dist/**', 'node_modules/**', 'coverage/**', '**/*.min.*'],
-  },
+  { ignores: ['.nuxt/**', '.output/**', 'dist/**', 'node_modules/**', 'coverage/**', '**/*.min.*'] },
 
-  // 1) JS 基本
   js.configs.recommended,
-
-  // 2) TS 推奨（型チェックなしで軽い）
   ...tseslint.configs.recommended,
-
-  // 3) Vue / Nuxt 推奨
   ...vue.configs['flat/recommended'],
-  nuxt.configs['flat/recommended'],
+  ...(nuxt.configs?.['flat/recommended'] ?? []),
 
-  // 4) .vue の <script lang="ts"> を TS でパース
+  // .vue (<script lang="ts">)
   {
     files: ['**/*.vue'],
     languageOptions: {
       parser: vueParser,
-      parserOptions: {
-        parser: tseslint.parser,
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-      },
+      parserOptions: { parser: tseslint.parser, ecmaVersion: 'latest', sourceType: 'module' },
+      globals: { ...globals.browser, google: 'readonly', $fetch: 'readonly', useValidation: 'readonly' }
     },
     rules: {
-      // Nuxt では単語数1つのコンポーネント名を許容
       'vue/multi-word-component-names': 'off',
-    },
+      'vue/attributes-order': 'off',
+      'vue/attribute-hyphenation': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-empty': ['off', { allowEmptyCatch: true }]
+    }
   },
 
-  // 5) よく使う軽量ルール
+  // .ts/.js 共通の緩和
   {
-    files: ['**/*.{js,ts,vue}'],
+    files: ['**/*.{ts,js}'],
+    languageOptions: { globals: globals.browser },
     rules: {
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
-      'no-debugger': 'warn',
-      // 使うなら↓（余裕があれば）
-      // 'unused-imports/no-unused-imports': 'warn'
-    },
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-empty': ['off', { allowEmptyCatch: true }]
+    }
   },
 
-  // 6) Prettier と競合する“整形系ルール”を無効化
-  eslintConfigPrettier,
+  {
+    files: ['**/*.d.ts'],
+    rules: {
+      '@typescript-eslint/triple-slash-reference': 'off'
+    }
+  },
+
+  prettier
 ]

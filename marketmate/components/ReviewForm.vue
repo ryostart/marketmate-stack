@@ -31,6 +31,7 @@ import RatingInput from './RatingInput.vue'
 import { useReviews } from '../composables/useReviews'
 import { useAuth } from '../composables/useAuth'
 import { useRoute } from '#imports'
+import { computed } from 'vue'
 
 type Review = { id: string; userId: string; rating: number; comment: string; createdAt: string }
 
