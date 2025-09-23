@@ -1,0 +1,55 @@
+name: API CI (Spring Boot)
+
+on:
+  push:
+    paths:
+      - "marketmate-server/**"
+      - ".github/workflows/api-ci.yml"
+  pull_request:
+    paths:
+      - "marketmate-server/**"
+      - ".github/workflows/api-ci.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    name: Test / Build (Testcontainers)
+    runs-on: ubuntu-latest
+
+    env:
+      SPRING_PROFILES_ACTIVE: test   # ← application-test.yml を使うなら明示
+      # （必要なら）GRADLE_OPTS: "-Xmx2g"
+    defaults:
+      run:
+        working-directory: marketmate-server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"        # 17 を使っていれば 17 に変更
+          cache: gradle
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Test
+        run: ./gradlew --no-daemon test
+
+      - name: Build
+        run: ./gradlew --no-daemon build
+
+      - name: Upload JAR
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-jar
+          path: marketmate-server/build/libs/*.jar
+          retention-days: 7
