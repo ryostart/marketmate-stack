@@ -1,0 +1,58 @@
+name: Web CI (Nuxt)
+
+on:
+  push:
+    paths:
+      - "marketmate/**"
+      - ".github/workflows/web-ci.yml"
+  pull_request:
+    paths:
+      - "marketmate/**"
+      - ".github/workflows/web-ci.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Lint / Typecheck / Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: marketmate
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: marketmate/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload artifact (Nuxt output)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: |
+            marketmate/.output/**
+            marketmate/dist/**
+          if-no-files-found: ignore
+          retention-days: 7
