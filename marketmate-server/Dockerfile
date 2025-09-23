@@ -5,6 +5,7 @@ WORKDIR /app
 # 依存キャッシュのために設定系からコピー
 COPY gradlew settings.gradle build.gradle /app/
 COPY gradle /app/gradle
+RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
 RUN ./gradlew --version
 
 # ソース投入してビルド（テストは一旦スキップ）
