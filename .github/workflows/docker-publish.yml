@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: "Which image to build?"
+        description: "web / api / both"
         required: true
         default: "both"
         type: choice
         options: [web, api, both]
       version:
-        description: "Image tag (e.g. v1.0.0). Leave empty to use short SHA"
+        description: "tag (e.g. v1.0.0). empty = short SHA"
         required: false
         type: string
   push:
@@ -19,7 +19,7 @@ on:
 
 permissions:
   contents: read
-  packages: write   # ← GHCR へ push するので必須
+  packages: write
 
 env:
   REGISTRY: ghcr.io
@@ -32,50 +32,41 @@ jobs:
     strategy:
       matrix:
         service: [web, api]
-    # 手動実行時: target が web/api のときは片方だけ、both なら両方
-    # タグ push 時: 両方
-    if: >
-      github.event_name == 'push' ||
-      inputs.target == 'both' ||
-      (inputs.target == 'web' && matrix.service == 'web') ||
-      (inputs.target == 'api' && matrix.service == 'api')
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set image meta (name & tags)
-        id: meta
+      - id: meta
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPO }}-${{ matrix.service }}
-          # タグ戦略：
-          # 手動時: 入力 version があればそれ＋latest、無ければ short SHA
-          # タグ push: タグ（v1.2.3）と latest
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.REPO }}-${{ matrix.service }}
           tags: |
             type=raw,value=${{ github.event_name == 'workflow_dispatch' && inputs.version != '' && inputs.version || '' }}
             type=raw,value=latest,enable=${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.version != '') }}
             type=sha,format=short,enable=${{ github.event_name == 'workflow_dispatch' && (inputs.version == '' || inputs.version == null) }}
             type=ref,event=tag,enable=${{ github.event_name == 'push' }}
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v3
 
       - name: Build & Push ${{ matrix.service }}
         uses: docker/build-push-action@v5
+        if: |
+          github.event_name == 'push' ||
+          inputs.target == 'both' ||
+          (inputs.target == 'web' && matrix.service == 'web') ||
+          (inputs.target == 'api' && matrix.service == 'api')
         with:
           context: ${{ matrix.service == 'web' && 'marketmate' || 'marketmate-server' }}
           file: ${{ matrix.service == 'web' && 'marketmate/Dockerfile' || 'marketmate-server/Dockerfile' }}
+          platforms: linux/amd64
           push: true
           provenance: false
-          platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
