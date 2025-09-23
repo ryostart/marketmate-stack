@@ -10,6 +10,7 @@ RUN ./gradlew --version
 
 # ソース投入してビルド（テストは一旦スキップ）
 COPY . /app
+RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
 RUN ./gradlew bootJar -x test
 
 # ---- run stage ----
