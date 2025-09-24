@@ -17,12 +17,31 @@ concurrency:
 
 jobs:
   api:
-    name: Test / Build (Testcontainers)
+    name: Test / Build
     runs-on: ubuntu-latest
 
+    # CI上でPostgreSQLを起動
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d testdb"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     env:
-      SPRING_PROFILES_ACTIVE: test   # ← application-test.yml を使うなら明示
-      # （必要なら）GRADLE_OPTS: "-Xmx2g"
+      SPRING_PROFILES_ACTIVE: test
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
+      SPRING_DATASOURCE_USERNAME: test
+      SPRING_DATASOURCE_PASSWORD: test
+
     defaults:
       run:
         working-directory: marketmate-server
@@ -34,17 +53,27 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "21"        # 17 を使っていれば 17 に変更
+          java-version: "21"   # ← 17なら"17"
           cache: gradle
 
       - name: Make gradlew executable
         run: chmod +x gradlew
 
       - name: Test
-        run: ./gradlew --no-daemon test
+        run: ./gradlew --no-daemon test --info --stacktrace
 
       - name: Build
         run: ./gradlew --no-daemon build
+
+      - name: Upload test reports (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-reports
+          path: |
+            marketmate-server/build/reports/tests/test/**
+            marketmate-server/build/test-results/test/**
+          retention-days: 7
 
       - name: Upload JAR
         if: success()
